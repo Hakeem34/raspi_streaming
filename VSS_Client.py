@@ -35,7 +35,13 @@ class SoundClientThread(threading.Thread):
     def __init__(self):
       super(SoundClientThread, self).__init__()
       self.setDaemon(True)
-      self.audio_in = AudioIo(True, 16000, 0, False, 8)
+      self.mic_on = True
+      try:
+        self.audio_in = AudioIo(True, 16000, 0, False, 8)
+      except IOError:
+        print('No Mic device')
+        self.mic_on = False
+
       self.audio_out = AudioIo(False, 16000, 0, False, 32)
 #     self.audio_out.set_debug(True)
       self.talk = False
@@ -255,15 +261,17 @@ def main():
       debug = not(debug)
       print ('debug', debug)
       SCT.audio_out.set_debug(debug)
-      SCT.audio_in.set_debug(debug)
+      if (SCT.mic_on == True):
+        SCT.audio_in.set_debug(debug)
 
     if in_key == ord('t'):
-      if (SCT.talk == False):
-        print ('Start Talk!')
-        SCT.talk = True
-      else:
-        print ('Stop Talk!')
-        SCT.talk = False
+      if (SCT.mic_on == True):
+        if (SCT.talk == False):
+          print ('Start Talk!')
+          SCT.talk = True
+        else:
+          print ('Stop Talk!')
+          SCT.talk = False
 
   term = True
   PerfTh.join()
