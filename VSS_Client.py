@@ -146,6 +146,9 @@ def get_ip():
     buf += receivedstr
   sock.close()
   print (buf)
+  front = buf.find("'", 0)
+  rear = buf.find("'", front+1)
+  return buf[front+1:rear]
 
 
 def perf_disp():
@@ -174,6 +177,9 @@ def main():
   global term
   global prev_send
   global prev_rcv
+  global local_address
+
+  local_address = get_ip()
 
   video_on = True
   SCT = SoundClientThread()
@@ -193,6 +199,14 @@ def main():
   while True:
     if ((video_on == True) and (SCT.talk == False)):
       img = getimage()
+#      if len(img.shape) == 3:
+#        height, width, channels = img.shape[:3]
+#      else:
+#        height, width = img.shape[:2]
+#      if (width == 0) or (heigth == 0):
+      if img == None:
+        img = cv2.imread("noimage.png", cv2.IMREAD_UNCHANGED)
+
       cv2.imshow('Capture',img)
 
     in_key = cv2.waitKey(1) & 0xFF
@@ -202,7 +216,8 @@ def main():
       break
 
     if in_key == ord('g'):
-      get_ip()
+      ip = get_ip()
+      print ip
 
     if in_key == ord('e'):
       set_cmd('TERM \n')
